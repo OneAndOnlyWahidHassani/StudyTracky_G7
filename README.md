@@ -92,8 +92,11 @@ Vi valde **React**, men kollade så klart på alternativen. Här är vår (gansk
 
 ### Varför React till slut?
 
-Det var helt enkelt bästa kombon av _"vi kan det här redan"_, _"det finns hjälp att googla"_ och
-_"komponenter gör att vi kan dela upp arbetet"_. För en liten app i ett skolprojekt med kort
+Det var helt enkelt bästa kombon av "vi kan det här redan", "det finns hjälp att googla" och
+"komponenter gör att vi kan dela upp arbetet". För en liten app i ett skolprojekt med kort
 deadline kändes Angular för mastigt, Svelte för okänt, och vanilla JS för bökigt. Vue hade
-funkat fint, det blev React mest för att vi redan var bekväma med det. Här är en källa om varför vi valde React över t.ex. Angular
+funkat fint, det blev React mest för att vi redan var bekväma med det. Här är några källor om varför vi valde React över t.ex. Angular
 https://www.geeksforgeeks.org/angular-js/why-use-react-instead-of-other-frameworks-like-angular/
+https://medium.com/@jshristi17/why-choose-react-how-is-it-different-from-other-frameworks-32743dda3297
+https://dev.to/gulshan0709/react-vs-other-frontend-frameworks-which-should-you-choose-in-2025-5hjj
+https://realitypathing.com/what-to-consider-when-choosing-between-react-and-other-frameworks/
