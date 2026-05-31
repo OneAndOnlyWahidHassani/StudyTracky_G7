@@ -1,4 +1,10 @@
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend
+} from 'recharts'
 import { getSessions, getCourses } from '../lib/storage'
+
+const DAY_NAMES = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör']
 
 export default function DashboardPage() {
   const sessions = getSessions()
@@ -11,13 +17,52 @@ export default function DashboardPage() {
   const thisWeekSessions = sessions.filter(s => new Date(s.startTime) > oneWeekAgo)
   const weekMinutes = thisWeekSessions.reduce((sum, s) => sum + s.durationMinutes, 0)
 
-  // Räkna minuter per kurs
+  // Bygg data för stapeldiagram – senaste 7 dagarna
+  const DAY_NAMES = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör']
+  const dailyData = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    d.setDate(d.getDate() - (6 - i))
+    return { day: DAY_NAMES[d.getDay()], minutes: 0, date: d }
+  })
+  for (const s of sessions) {
+    const sd = new Date(s.startTime)
+    sd.setHours(0, 0, 0, 0)
+    const slot = dailyData.find(d => d.date.getTime() === sd.getTime())
+    if (slot) slot.minutes += s.durationMinutes
+  }
+
+  // Bygg data för cirkeldiagram – tid per kurs
   const minutesPerCourse = {}
   for (const session of sessions) {
-    const key = session.courseId || 'ingen'
+    const key = session.courseId || '__ingen__'
     minutesPerCourse[key] = (minutesPerCourse[key] || 0) + session.durationMinutes
   }
-  const maxMinutes = Math.max(...Object.values(minutesPerCourse), 1)
+  const pieData = Object.entries(minutesPerCourse).map(([courseId, mins]) => {
+    const course = courses.find(c => c.id === courseId)
+    return {
+      name: course ? course.name : 'Ingen kurs',
+      value: mins,
+      color: course ? course.color : '#e94560'
+    }
+  })
+
+  const formatMinutes = (mins) =>
+    mins >= 60 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : `${mins}m`
+
+  const chartCardStyle = {
+    padding: '20px',
+    background: 'var(--bg-surface)',
+    borderRadius: '8px',
+    border: '1px solid var(--border)'
+  }
+
+  const tooltipStyle = {
+    backgroundColor: 'var(--bg-surface, #1a1a2e)',
+    border: '1px solid var(--border, #333)',
+    borderRadius: '6px',
+    color: 'var(--text, #eee)'
+  }
 
   const statCardStyle = {
     padding: '20px',
@@ -53,33 +98,57 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {Object.keys(minutesPerCourse).length > 0 && (
-        <div style={{ padding: '20px', background: 'var(--bg-surface)', borderRadius: '8px', border: '1px solid var(--border)' }}>
-          <h2 style={{ fontSize: '1rem', marginBottom: '16px' }}>Tid per kurs</h2>
-          {Object.entries(minutesPerCourse).map(([courseId, mins]) => {
-            const course = courses.find(c => c.id === courseId)
-            const barWidth = (mins / maxMinutes) * 100
-            return (
-              <div key={courseId} style={{ marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.85rem' }}>
-                  <span style={{ color: course ? course.color : 'var(--text-muted)' }}>
-                    {course ? course.name : 'Ingen kurs'}
-                  </span>
-                  <span style={{ color: 'var(--text-muted)' }}>
-                    {Math.floor(mins / 60)}h {mins % 60}m
-                  </span>
-                </div>
-                <div style={{ background: 'var(--border)', borderRadius: '4px', height: '8px' }}>
-                  <div style={{
-                    background: course ? course.color : '#e94560',
-                    borderRadius: '4px',
-                    height: '8px',
-                    width: barWidth + '%'
-                  }} />
-                </div>
-              </div>
-            )
-          })}
+      {/* Stapeldiagram – studietid per dag */}
+      <div style={chartCardStyle}>
+        <h2 style={{ fontSize: '1rem', marginBottom: '16px' }}>Studietid senaste 7 dagarna</h2>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={dailyData} margin={{ top: 4, right: 8, left: -10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border, #333)" />
+            <XAxis dataKey="day" tick={{ fill: 'var(--text-muted, #aaa)', fontSize: 12 }} />
+            <YAxis
+              tickFormatter={v => v >= 60 ? `${Math.floor(v / 60)}h` : `${v}m`}
+              tick={{ fill: 'var(--text-muted, #aaa)', fontSize: 11 }}
+            />
+            <Tooltip
+              contentStyle={tooltipStyle}
+              formatter={(value) => [formatMinutes(value), 'Studietid']}
+            />
+            <Bar dataKey="minutes" fill="#e94560" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Cirkeldiagram – tid per kurs */}
+      {pieData.length > 0 && (
+        <div style={chartCardStyle}>
+          <h2 style={{ fontSize: '1rem', marginBottom: '16px' }}>Fördelning per kurs</h2>
+          <ResponsiveContainer width="100%" height={260}>
+            <PieChart>
+              <Pie
+                data={pieData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={90}
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                labelLine={true}
+              >
+                {pieData.map((entry, index) => (
+                  <Cell key={index} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={tooltipStyle}
+                formatter={(value) => [formatMinutes(value), 'Studietid']}
+              />
+              <Legend
+                formatter={(value) => (
+                  <span style={{ color: 'var(--text-muted, #aaa)', fontSize: '0.85rem' }}>{value}</span>
+                )}
+              />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
       )}
 
