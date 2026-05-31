@@ -1,8 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { IconPlay, IconPause, IconRefresh, IconSkipForward, IconSettings, IconX } from '../components/Icons'
-import { TIMER_MODES, MODE_LABELS } from '../lib/constants';
+import { TIMER_MODES, MODE_LABELS, DEFAULT_SETTINGS } from '../lib/constants';
 import styles from './TimerPage.module.css'
-import { getCourses } from '../lib/storage'
+import { getCourses, saveSession } from '../lib/storage'
+
+const SETTINGS_KEY = 'studytracky_settings'
+
+//läser inställningar från localStorage och fyller på med standardvärden
+function loadSettings() {
+    const stored = localStorage.getItem(SETTINGS_KEY)
+    const parsed = stored ? JSON.parse(stored) : {}
+    return {
+        ...DEFAULT_SETTINGS,
+        apiKey: '',
+        educationLevel: 'kandidat',
+        ...parsed,
+    }
+}
 
 //börjar med formatera siffrorna på timern
 function pad(n) {return String(n).padStart(2, '0')}
@@ -88,8 +102,8 @@ function SettingsModal ({ settings, onSave, onClose}) {
                 </div>
 
                 <div className="modal-footer">
-                    <button className="btn btn-secondary" onCLick={onClose}>Avbryt</button>
-                    <button className="btn btn-primary" onCLick={() => onSave(form)}>Spara</button>
+                    <button className="btn btn-secondary" onClick={onClose}>Avbryt</button>
+                    <button className="btn btn-primary" onClick={() => onSave(form)}>Spara</button>
                 </div>
             </div>
         </div>
@@ -98,20 +112,100 @@ function SettingsModal ({ settings, onSave, onClose}) {
 }
 
 export default function TimerPage() {
-    const {
-        timer,
-        settings,
-        saveTimerSettings,
-        selectedCourseId,
-        setSelectedCourseId,
-        sessionStartRef
-    } = useTimerContext() //kommer skapa den snart 
-
+    const [settings, setSettings] = useState(loadSettings)
+    const [mode, setMode] = useState(TIMER_MODES.WORK)
+    const [secondsLeft, setSecondsLeft] = useState(settings.workMinutes * 60)
+    const [isRunning, setIsRunning] = useState(false)
+    const [pomodoroCount, setPomodoroCount] = useState(0)
+    const [selectedCourseId, setSelectedCourseId] = useState('')
     const [showSettings, setShowSettings] = useState(false)
 
-    const courses = getCourses() //kommer snart också
+    const sessionStartRef = useRef(null)
 
-    const selectedCourse = courses.find(course => course.id === selectedCourse)
+    //hur många sekunder ett visst läge ska pågå
+    const durationFor = (m) => {
+        if (m === TIMER_MODES.WORK) return settings.workMinutes * 60
+        if (m === TIMER_MODES.BREAK) return settings.breakMinutes * 60
+        return settings.longBreakMinutes * 60
+    }
+
+    //räknar ner en sekund i taget medan timern är igång
+    useEffect(() => {
+        if (!isRunning || secondsLeft <= 0) return
+        const id = setTimeout(() => setSecondsLeft(s => s - 1), 1000)
+        return () => clearTimeout(id)
+    }, [isRunning, secondsLeft])
+
+    //när timern når noll: spara session (om fokustid) och gå vidare till nästa läge
+    useEffect(() => {
+        if (!isRunning || secondsLeft > 0) return
+        setIsRunning(false)
+
+        if (mode === TIMER_MODES.WORK) {
+            saveSession({
+                id: crypto.randomUUID(),
+                courseId: selectedCourseId || null,
+                startTime: sessionStartRef.current,
+                endTime: new Date().toISOString(),
+                durationMinutes: settings.workMinutes,
+            })
+            sessionStartRef.current = null
+
+            const newCount = pomodoroCount + 1
+            setPomodoroCount(newCount)
+            const nextMode = newCount % settings.sessionsBeforeLongBreak === 0
+                ? TIMER_MODES.LONG_BREAK
+                : TIMER_MODES.BREAK
+            setMode(nextMode)
+            setSecondsLeft(durationFor(nextMode))
+        } else {
+            setMode(TIMER_MODES.WORK)
+            setSecondsLeft(durationFor(TIMER_MODES.WORK))
+        }
+        
+    }, [isRunning, secondsLeft])
+
+    const timer = {
+        mode,
+        secondsLeft,
+        isRunning,
+        progress: durationFor(mode) > 0 ? (durationFor(mode) - secondsLeft) / durationFor(mode) : 0,
+        pomodoroCount,
+        start: () => setIsRunning(true),
+        pause: () => setIsRunning(false),
+        reset: () => {
+            setIsRunning(false)
+            setSecondsLeft(durationFor(mode))
+            sessionStartRef.current = null
+        },
+        skip: () => {
+            setIsRunning(false)
+            sessionStartRef.current = null
+            const nextMode = mode === TIMER_MODES.WORK
+                ? ((pomodoroCount + 1) % settings.sessionsBeforeLongBreak === 0
+                    ? TIMER_MODES.LONG_BREAK
+                    : TIMER_MODES.BREAK)
+                : TIMER_MODES.WORK
+            setMode(nextMode)
+            setSecondsLeft(durationFor(nextMode))
+        },
+    }
+
+    //sparar nya inställningar lokalt och nollställer timern
+    const saveTimerSettings = (form) => {
+        const next = { ...settings, ...form }
+        setSettings(next)
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(next))
+        setIsRunning(false)
+        setMode(TIMER_MODES.WORK)
+        setSecondsLeft(next.workMinutes * 60)
+        setPomodoroCount(0)
+        sessionStartRef.current = null
+    }
+
+    const courses = getCourses()
+
+    const selectedCourse = courses.find(course => course.id === selectedCourseId)
 
     const modeColors = {
         [TIMER_MODES.WORK]: 'var(--color-primary)',
