@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 const PAGES = [
   { id: 'timer', label: 'Timer' },
   { id: 'courses', label: 'Kurser' },
@@ -7,29 +9,39 @@ const PAGES = [
 ]
 
 export default function Nav({ page, setPage, theme, setTheme }) {
-  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark')
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  function handleNav(id) {
+    setPage(id)
+    setMenuOpen(false)
+  }
 
   return (
     <nav className="nav">
       <span className="nav-brand">StudyTracky</span>
-      <div className="nav-links">
+
+      <button className="nav-burger" onClick={() => setMenuOpen(!menuOpen)}>
+        {menuOpen ? '✕' : '☰'}
+      </button>
+
+      <div className={`nav-links ${menuOpen ? 'nav-links-open' : ''}`}>
         {PAGES.map(p => (
           <button
             key={p.id}
             className={`btn btn-ghost ${page === p.id ? 'nav-link-active' : ''}`}
-            onClick={() => setPage(p.id)}
+            onClick={() => handleNav(p.id)}
           >
             {p.label}
           </button>
         ))}
+        <button
+          className="btn btn-ghost btn-icon"
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          title={theme === 'dark' ? 'Byt till ljust tema' : 'Byt till mörkt tema'}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
       </div>
-      <button
-        className="btn btn-ghost btn-icon"
-        onClick={toggleTheme}
-        title={theme === 'dark' ? 'Byt till ljust tema' : 'Byt till mörkt tema'}
-      >
-        {theme === 'dark' ? '☀️' : '🌙'}
-      </button>
     </nav>
   )
 }
