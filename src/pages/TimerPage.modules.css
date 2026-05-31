@@ -1,11 +1,151 @@
 .page {
-    max-width: 540px;
-    margin: 0 auto;
+  max-width: 540px;
+  margin: 0 auto;
 }
 
 .pageHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.courseSelector {
+  max-width: 300px;
+  margin: 0 auto 2.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.timerWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.modeLabel {
+  display: flex;
+  justify-content: center;
+}
+
+.ring {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  flex-shrink: 0;
+}
+
+/* Calming breathe rings – shown when timer is running in work mode */
+.breatheWrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.breatheRing {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--ring-color, var(--color-primary));
+  opacity: 0;
+  animation: breatheExpand 4s ease-out infinite;
+}
+
+.breatheRing:nth-child(1) { width: 300px; height: 300px; animation-delay: 0s; }
+.breatheRing:nth-child(2) { width: 340px; height: 340px; animation-delay: 1.2s; }
+.breatheRing:nth-child(3) { width: 380px; height: 380px; animation-delay: 2.4s; }
+
+@keyframes breatheExpand {
+  0%   { transform: scale(0.85); opacity: 0.5; }
+  100% { transform: scale(1.1);  opacity: 0; }
+}
+
+.timeDisplay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.time {
+  font-size: 3.75rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.courseName {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.pomodoroCount {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pomodoroDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background var(--transition);
+}
+
+.pomodoroDotFilled {
+  background: var(--color-primary);
+  box-shadow: 0 0 6px var(--color-primary);
+}
+
+.pomodoroLabel {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-left: 0.25rem;
+}
+
+/* Controls – three evenly-spaced centered buttons */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.controlBtn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.playBtn {
+  width: 76px;
+  height: 76px;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-glow);
+  padding: 0;
+}
+
+@media (max-width: 360px) {
+  .ring { width: 240px; height: 240px; }
+  .time { font-size: 3rem; }
+  .playBtn { width: 66px; height: 66px; }
+  .controlBtn { width: 46px; height: 46px; }
 }

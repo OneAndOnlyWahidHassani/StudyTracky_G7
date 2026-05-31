@@ -1,16 +1,25 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
-
-function AppInner(theme, onToggleTheme) {
-
-}
+import Nav from './components/Nav'
+import TimerPage from './pages/TimerPage'
+import CoursesPage from './lib/CoursesPage'
+import SessionsPage from './lib/SessionsPage'
+import QuizPage from './pages/QuizPage'
+import DashboardPage from './pages/DashboardPage'
 
 export default function App() {
-  const { //lägg in typ tema och funktion för att byta tema} = useState()
-    }
+  const [page, setPage] = useState('timer')
+  const [theme, setTheme] = useState('dark')
 
-
+  return (
+    <div className={`app theme-${theme}`}>
+      <Nav page={page} setPage={setPage} theme={theme} setTheme={setTheme} />
+      <main className="main-content">
+        {page === 'timer'     && <TimerPage />}
+        {page === 'courses'   && <CoursesPage />}
+        {page === 'sessions'  && <SessionsPage />}
+        {page === 'quiz'      && <QuizPage />}
+        {page === 'dashboard' && <DashboardPage />}
+      </main>
+    </div>
+  )
 }
