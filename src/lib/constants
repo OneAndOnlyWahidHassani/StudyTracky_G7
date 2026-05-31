@@ -1,0 +1,19 @@
+export const TIMER_MODES = {
+  WORK: 'work',
+  BREAK: 'break',
+  LONG_BREAK: 'longBreak',
+}
+
+export const DEFAULT_SETTINGS = {
+  workMinutes: 25,
+  breakMinutes: 5,
+  longBreakMinutes: 15,
+  sessionsBeforeLongBreak: 4,
+  theme: 'dark',
+}
+
+export const MODE_LABELS = {
+  work: 'Fokustid',
+  break: 'Kort paus',
+  longBreak: 'Lång paus',
+}

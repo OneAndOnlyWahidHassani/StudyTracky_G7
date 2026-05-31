@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { IconX } from '../components/Icons.jsx'
+import { TIMER_MODES, MODE_LABELS } from '../lib/constants';
 
 //börjar med formatera siffrorna på timern
 function pad(n) {return String(n).padStart(2, '0')}
@@ -91,5 +92,50 @@ function SettingsModal ({ settings, onSave, onClose}) {
             </div>
         </div>
     )
+
+}
+
+export default function TimerPage() {
+    const {
+        timer,
+        settings,
+        saveTimerSettings,
+        selectedCourseId,
+        setSelectedCourseId,
+        sessionStartRef
+    } = useTimerContext() //kommer skapa den snart 
+
+    const [showSettings, setShowSettings] = useState(false)
+
+    const courses = getCourses() //kommer snart också
+
+    const selectedCourse = courses.find(course => course.id === selectedCourse)
+
+    const modeColors = {
+        [TIMER_MODES.WORK]: 'var(--color-primary)',
+        [TIMER_MODES.BREAK]: 'var(--color-success)',
+        [TIMER_MODES.LONG_BREAK]: 'var(--color-info)',
+    }
+    const ringColor = selectedCourse ? selectedCourse.color : modeColors[timer.mode]
+    const circumference = 2*Math.PI * 120
+    const offset = circumference * (1 -timer.progress) //tänkte ha de i en timercomp eller hook eller båda ska se
+
+    const handlePlay = () => {
+        if (timer.isRunning) {
+            timer.pause()
+        } else {
+            if(timer.mode === TIMER_MODES.WORK && !sessionStartRef.current){
+                sessionStartRef.current = new Date().toISOString()
+            }
+            timer.start()
+        }
+    }
+    // ska fylla i snart
+    return (
+
+    )
+
+
+
 
 }
