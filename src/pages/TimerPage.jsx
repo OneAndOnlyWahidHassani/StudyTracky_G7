@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { IconX } from '../components/Icons.jsx'
+import { IconPlay, IconPause, IconRefresh, IconSkipForward, IconSettings, IconX } from '../components/Icons'
 import { TIMER_MODES, MODE_LABELS } from '../lib/constants';
+import styles from './TimerPage.module.css'
 
 //börjar med formatera siffrorna på timern
 function pad(n) {return String(n).padStart(2, '0')}
@@ -132,7 +133,122 @@ export default function TimerPage() {
     }
     // ska fylla i snart
     return (
+    <div className={styles.page}>
+        <div className={styles.pageHeader}>
+            <div>
+                <h1 className="page-title">Timer</h1>
+                <p className="page-subtitle">Pomodoro-timer för fokuserade studiesessioner</p>
+            </div>
+            <button className="btn btn-ghost btn-icon" onClick={() => setShowSettings(true)} title="Inställningar">
+                <IconSettings size={20} />
+            </button>
+        </div>
 
+        {courses.length > 0 && (
+        <div className={styles.courseSelector}>
+            <select className="form-input" value={selectedCourseId}
+            onChange={e => setSelectedCourseId(e.target.value)}>
+            <option value="">Välj kurs (valfritt)</option>
+            {courses.map(c => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+            </select>
+        </div>
+        )}
+
+        <div className={styles.timerWrap}>
+            <div className={styles.modeLabel}>
+                <span
+                    className={`badge ${timer.mode === TIMER_MODES.WORK ? 'badge-primary' : 'badge-success'}`}
+                    style={{ fontSize: '0.9rem', padding: '0.3rem 1rem' }}
+                    >
+                    {MODE_LABELS[timer.mode]}
+                </span>
+            </div>
+
+            <div className={styles.ring}>
+            {timer.isRunning && timer.mode === TIMER_MODES.WORK && (
+                <div className={styles.breatheWrap} style={{ '--ring-color': ringColor }}>
+                    <div className={styles.breatheRing} />
+                    <div className={styles.breatheRing} />
+                    <div className={styles.breatheRing} />
+                </div>
+                )}
+                <svg width="280" height="280" viewBox="0 0 280 280">
+                    <circle cx="140" cy="140" r="120" fill="none" stroke="var(--border)" strokeWidth="12" />
+                    <circle
+                    cx="140" cy="140" r="120"
+                    fill="none"
+                    stroke={ringColor}
+                    strokeWidth="12"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={offset}
+                    strokeLinecap="round"
+                    transform="rotate(-90 140 140)"
+                    style={{
+                    transition: timer.isRunning ? 'stroke-dashoffset 1s linear' : 'stroke-dashoffset 0.3s ease',
+                    filter: `drop-shadow(0 0 12px ${ringColor}80)`,
+                    }}
+                />
+                </svg>
+                <div className={styles.timeDisplay}>
+                    <span className={styles.time}>{formatTime(timer.secondsLeft)}</span>
+                    {selectedCourse && (
+                    <span className={styles.courseName} style={{ color: selectedCourse.color }}>
+                    {selectedCourse.name}
+                    </span>
+                    )}
+                </div>
+            </div>
+
+            <div className={styles.pomodoroCount}>
+                {(() => {
+                const cycle = timer.pomodoroCount % settings.sessionsBeforeLongBreak
+                const filled = cycle === 0 && timer.pomodoroCount > 0 ? settings.sessionsBeforeLongBreak : cycle
+                return Array.from({ length: settings.sessionsBeforeLongBreak }).map((_, i) => (
+                <div key={i} className={`${styles.pomodoroDot} ${i < filled ? styles.pomodoroDotFilled : ''}`} />
+                ))
+                })()}
+                <span className={styles.pomodoroLabel}>
+                {timer.pomodoroCount} session{timer.pomodoroCount !== 1 ? 'er' : ''} avklarad{timer.pomodoroCount !== 1 ? 'e' : ''}
+                </span>
+            </div>
+
+            <div className={styles.controls}>
+                <button
+                className={`btn btn-secondary ${styles.controlBtn}`}
+                onClick={timer.reset}
+                title="Återställ"
+                >
+                    <IconRefresh size={22} />
+                </button>
+
+                <button
+                className={`btn btn-primary ${styles.playBtn}`}
+                onClick={handlePlay}
+                title={timer.isRunning ? 'Pausa timer' : 'Starta timer'}
+                >
+                {timer.isRunning ? <IconPause size={28} /> : <IconPlay size={28} />}
+                </button>
+
+                <button
+                className={`btn btn-secondary ${styles.controlBtn}`}
+                onClick={timer.skip}
+                title="Hoppa över"
+                >
+                    <IconSkipForward size={22} />
+                </button>
+            </div>
+        </div>
+
+        {showSettings && (
+        <SettingsModal
+            settings={settings}
+            onSave={(form) => { saveTimerSettings(form); setShowSettings(false) }}
+            onClose={() => setShowSettings(false)}
+        />
+        )}
+    </div>
     )
 
 
