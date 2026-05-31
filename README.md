@@ -100,3 +100,5 @@ https://www.geeksforgeeks.org/angular-js/why-use-react-instead-of-other-framewor
 https://medium.com/@jshristi17/why-choose-react-how-is-it-different-from-other-frameworks-32743dda3297
 https://dev.to/gulshan0709/react-vs-other-frontend-frameworks-which-should-you-choose-in-2025-5hjj
 https://realitypathing.com/what-to-consider-when-choosing-between-react-and-other-frameworks/
+
+Webbapplikationen är hostad på Netlify: g7studytracky.netlify.app.
