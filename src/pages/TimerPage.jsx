@@ -180,12 +180,32 @@ export default function TimerPage() {
         },
         skip: () => {
             setIsRunning(false)
+
+            // Paus -> hoppa direkt till nästa fokuspass utan att räkna
+            if (mode !== TIMER_MODES.WORK) {
+                sessionStartRef.current = null
+                setMode(TIMER_MODES.WORK)
+                setSecondsLeft(durationFor(TIMER_MODES.WORK))
+                return
+            }
+
+            // TESTLÄGE: spara alltid en session vid skip (minst 1 min), så att statistiken fylls på
+            const elapsedSec = durationFor(TIMER_MODES.WORK) - secondsLeft
+            const studiedMinutes = Math.max(1, Math.round(elapsedSec / 60))
+            saveSession({
+                id: crypto.randomUUID(),
+                courseId: selectedCourseId || null,
+                startTime: sessionStartRef.current ?? new Date().toISOString(),
+                endTime: new Date().toISOString(),
+                durationMinutes: studiedMinutes,
+            })
+            const newCount = pomodoroCount + 1
+            setPomodoroCount(newCount)
             sessionStartRef.current = null
-            const nextMode = mode === TIMER_MODES.WORK
-                ? ((pomodoroCount + 1) % settings.sessionsBeforeLongBreak === 0
-                    ? TIMER_MODES.LONG_BREAK
-                    : TIMER_MODES.BREAK)
-                : TIMER_MODES.WORK
+
+            const nextMode = newCount > 0 && newCount % settings.sessionsBeforeLongBreak === 0
+                ? TIMER_MODES.LONG_BREAK
+                : TIMER_MODES.BREAK
             setMode(nextMode)
             setSecondsLeft(durationFor(nextMode))
         },
