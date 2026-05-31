@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { saveCourse } from '../lib/storage'
+import { saveCourse } from './storage'
 
 const COLORS = ['#e94560', '#4ade80', '#60a5fa', '#f59e0b', '#a78bfa']
 

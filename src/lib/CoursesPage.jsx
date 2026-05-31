@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import CourseForm from '../components/CourseForm'
-import { getCourses, deleteCourse } from '../lib/storage'
+import CourseForm from './CourseForm'
+import { getCourses, deleteCourse } from './storage'
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState(getCourses())
