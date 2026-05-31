@@ -1,4 +1,4 @@
-import { getSessions, getCourses } from './storage'
+import { getSessions, getCourses } from '../lib/storage'
 
 function formatDate(isoString) {
   const date = new Date(isoString)

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import Nav from './components/Nav'
 import TimerPage from './pages/TimerPage'
-import CoursesPage from './lib/CoursesPage'
-import SessionsPage from './lib/SessionsPage'
+import CoursesPage from './pages/CoursesPage'
+import SessionsPage from './pages/SessionsPage'
 import QuizPage from './pages/QuizPage'
 import DashboardPage from './pages/DashboardPage'
 
