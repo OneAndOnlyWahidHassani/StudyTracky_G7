@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { IconPlay, IconPause, IconRefresh, IconSkipForward, IconSettings, IconX } from '../components/Icons'
 import { TIMER_MODES, MODE_LABELS } from '../lib/constants';
 import styles from './TimerPage.module.css'
+import { getCourses } from '../lib/storage'
 
 //börjar med formatera siffrorna på timern
 function pad(n) {return String(n).padStart(2, '0')}
