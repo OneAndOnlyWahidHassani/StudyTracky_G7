@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { SunIcon, MoonIcon } from './Icons'
 
 const PAGES = [
   { id: 'timer', label: 'Timer' },
@@ -7,6 +8,8 @@ const PAGES = [
   { id: 'quiz', label: 'Quiz' },
   { id: 'dashboard', label: 'Statistik' },
 ]
+
+
 
 export default function Nav({ page, setPage, theme, setTheme }) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -39,7 +42,7 @@ export default function Nav({ page, setPage, theme, setTheme }) {
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           title={theme === 'dark' ? 'Byt till ljust tema' : 'Byt till mörkt tema'}
         >
-          {theme === 'dark' ? '☀️' : '🌙'}
+          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
         </button>
       </div>
     </nav>
