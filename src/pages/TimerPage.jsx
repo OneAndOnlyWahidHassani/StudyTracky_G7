@@ -359,7 +359,7 @@ export default function TimerPage() {
         {showSettings && (
         <SettingsModal
             settings={settings}
-            onSave={(form) => { saveTimerSettings(form); setShowSettings(false) }}
+            onSave={(form) => { saveTimerSettings(form); setShowSettings(false); }}
             onClose={() => setShowSettings(false)}
         />
         )}
