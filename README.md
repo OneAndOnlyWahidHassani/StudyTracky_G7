@@ -4,6 +4,10 @@ En liten Pomodoro-app för plugg. Du kör fokuspass, lägger upp dina kurser, se
 över hur mycket du pluggat och kan till och med generera ett litet AI-quiz på vad du
 just nyss läst. Allt sparas lokalt i webbläsaren, det sparas inte någon server, inget konto behövs.
 
+Webbapplikationen är hostad på Netlify: g7studytracky.netlify.app.
+Alternativt: www.studytracky.se 
+(inom MAU nätverk kan det bli problem då MAU använder gammalt SSL inspektion som ersätter vårt certifikat mot MAUs egna vilket kanske inte erkänner moderna CA och anser vårt som opålitligt, det är lets encrypt från Netlify TLS process och Stratos SSL)
+
 > Det här är ett skolprojekt i kursen Da395B (Flerplattform). Förvänta er alltså inte en
 > färdig produkt, detta är en prototyp för att visa att vi fattar ramverket. Låt det inte
 > spegla vad gruppmedlemmarna faktiskt klarar av.
@@ -101,4 +105,4 @@ https://medium.com/@jshristi17/why-choose-react-how-is-it-different-from-other-f
 https://dev.to/gulshan0709/react-vs-other-frontend-frameworks-which-should-you-choose-in-2025-5hjj
 https://realitypathing.com/what-to-consider-when-choosing-between-react-and-other-frameworks/
 
-Webbapplikationen är hostad på Netlify: g7studytracky.netlify.app.
+
